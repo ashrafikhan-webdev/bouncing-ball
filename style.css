@@ -1,0 +1,50 @@
+:root {
+  --bg-start: #10131a;
+  --bg-end: #1f2633;
+  --ball-color: #ff8a00;
+  --ball-highlight: #ffd59d;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: linear-gradient(160deg, var(--bg-start), var(--bg-end));
+  overflow: hidden;
+}
+
+.app,
+.playground {
+  width: 100%;
+  height: 100%;
+}
+
+.playground {
+  position: relative;
+}
+
+.ball {
+  position: absolute;
+  width: clamp(40px, 6vw, 72px);
+  aspect-ratio: 1 / 1;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  padding: 0;
+  background: radial-gradient(circle at 30% 30%, var(--ball-highlight), var(--ball-color));
+  box-shadow: 0 8px 20px rgb(0 0 0 / 35%);
+  transform: translate3d(0, 0, 0);
+}
+
+.ball:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 4px;
+}

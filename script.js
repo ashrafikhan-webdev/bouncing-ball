@@ -5,16 +5,16 @@
   const state = {
     x: 0,
     y: 0,
-    vx: 0,
-    vy: 0,
+    vx: 260,
+    vy: 220,
     radius: 0,
     gravity: 900,
-    bounce: 0.8,
-    boostSpeed: 700,
+    bounce: 0.9,
+    boostSpeed: 420,
+    maxBoost: 900,
     width: 0,
     height: 0,
     previousTime: 0,
-    isAnimating: false,
   };
 
   const setBounds = () => {
@@ -32,30 +32,17 @@
     state.y = Math.min(Math.max(state.y, 0), maxY);
   };
 
-  const placeBallAtRest = () => {
+  const resetPosition = () => {
     const size = ball.getBoundingClientRect().width;
     state.x = (state.width - size) / 2;
-    state.y = state.height - size;
-    state.vx = 0;
-    state.vy = 0;
+    state.y = (state.height - size) / 3;
   };
 
   const render = () => {
     ball.style.transform = `translate3d(${state.x}px, ${state.y}px, 0)`;
   };
 
-  const stopAnimation = () => {
-    state.isAnimating = false;
-    state.previousTime = 0;
-    state.vy = 0;
-    render();
-  };
-
   const update = (timestamp) => {
-    if (!state.isAnimating) {
-      return;
-    }
-
     if (!state.previousTime) {
       state.previousTime = timestamp;
     }
@@ -64,10 +51,20 @@
     state.previousTime = timestamp;
 
     state.vy += state.gravity * delta;
+    state.x += state.vx * delta;
     state.y += state.vy * delta;
 
     const ballSize = state.radius * 2;
+    const maxX = state.width - ballSize;
     const maxY = state.height - ballSize;
+
+    if (state.x <= 0) {
+      state.x = 0;
+      state.vx = Math.abs(state.vx);
+    } else if (state.x >= maxX) {
+      state.x = maxX;
+      state.vx = -Math.abs(state.vx);
+    }
 
     if (state.y <= 0) {
       state.y = 0;
@@ -76,9 +73,8 @@
       state.y = maxY;
       state.vy = -Math.abs(state.vy) * state.bounce;
 
-      if (Math.abs(state.vy) < 60) {
-        stopAnimation();
-        return;
+      if (Math.abs(state.vy) < 120) {
+        state.vy = -220;
       }
     }
 
@@ -86,17 +82,11 @@
     requestAnimationFrame(update);
   };
 
-  const startBounce = () => {
-    state.vy = -Math.max(state.boostSpeed, Math.abs(state.vy) + 200);
-
-    if (!state.isAnimating) {
-      state.isAnimating = true;
-      state.previousTime = 0;
-      requestAnimationFrame(update);
-    }
+  const boostBounce = () => {
+    state.vy = -Math.min(Math.abs(state.vy) + state.boostSpeed, state.maxBoost);
   };
 
-  ball.addEventListener('click', startBounce);
+  ball.addEventListener('click', boostBounce);
 
   window.addEventListener('resize', () => {
     setBounds();
@@ -104,6 +94,7 @@
   });
 
   setBounds();
-  placeBallAtRest();
+  resetPosition();
   render();
+  requestAnimationFrame(update);
 })();
